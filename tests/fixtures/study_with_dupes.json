@@ -1,0 +1,18 @@
+{
+  "context": [
+    {
+      "name_id": "Dup01",
+      "observations": [1.0, 2.0, 3.0],
+      "observation_times": [0.5, 1.0, 1.0],
+      "dosing": [50.0],
+      "dosing_type": ["oral"],
+      "dosing_times": [0.0],
+      "dosing_name": ["doseA"]
+    }
+  ],
+  "target": [],
+  "meta_data": {
+    "study_name": "StudyDupes",
+    "substance_name": "DrugX"
+  }
+}

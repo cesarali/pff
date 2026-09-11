@@ -1,0 +1,27 @@
+{
+  "context": [
+    {
+      "name_id": "S01-P001",
+      "observations": [1.0, 2.0, 3.5],
+      "observation_times": [0.5, 1.0, 2.0],
+      "dosing": [50.0],
+      "dosing_type": ["oral"],
+      "dosing_times": [0.0],
+      "dosing_name": ["doseA"]
+    },
+    {
+      "name_id": "S01-P002",
+      "observations": [0.8, 1.5, 2.2],
+      "observation_times": [0.5, 1.0, 2.0],
+      "dosing": [50.0],
+      "dosing_type": ["oral"],
+      "dosing_times": [0.0],
+      "dosing_name": ["doseA"]
+    }
+  ],
+  "target": [],
+  "meta_data": {
+    "study_name": "StudyCtxOnly",
+    "substance_name": "DrugX"
+  }
+}

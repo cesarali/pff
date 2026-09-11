@@ -1,0 +1,38 @@
+#!/bin/bash
+
+#SBATCH --partition=gpu              # on the partition "all"
+#SBATCH --nodes=1                    # on a single node
+#SBATCH --gpus=a100_40gb:1
+#SBATCH --ntasks=1                   # with a single task
+#SBATCH --cpus-per-task=10            # with that many cpu cores
+#SBATCH --mem=12G                    # will require that amount of RAM at maximum
+#SBATCH --time=0-02:30               # maximum runtime of the job as "d-hh:mm"
+#SBATCH --chdir=/work/ojedamarin/testjobs   # working directory of the job
+#SBATCH --mail-type=ALL              # always get mail notifications
+#SBATCH --output=slurm-%j.out        # standard out of the job into this file (also stderr)
+
+# ensure outside connection for comet ml logging 
+
+# ensure outside connection for comet ml logging 
+export http_proxy=http://proxy2.uni-potsdam.de:3128
+export https_proxy=http://proxy2.uni-potsdam.de:3128
+export ftp_proxy=http://proxy2.uni-potsdam.de:3128
+
+# Load environment
+module load lang/Miniforge3/24.1.2-0
+source activate generative-pk
+
+# Define variables
+PYTHON_PATH="/home/ojedamarin/.conda/envs/generative-pk/bin/python"
+SCRIPT_PATH="/home/ojedamarin/Projects/Pharma/generative_pk/scripts/training/train_aicme_from_key.py"
+
+COMET_KEY="y0XyUVDvpCNmx8vZCg5eURTKp"
+EXPERIMENT_KEY="49589ba2dbe94b5c99b495ed6c77338f"
+HOW_MANY_MORE_EPOCHS=2000
+RESUME=true
+
+# Run the Python script
+$PYTHON_PATH $SCRIPT_PATH --comet_key $COMET_KEY \
+    --experiment_key $EXPERIMENT_KEY \
+    --how_many_more_epochs $HOW_MANY_MORE_EPOCHS \
+    --resume $RESUME

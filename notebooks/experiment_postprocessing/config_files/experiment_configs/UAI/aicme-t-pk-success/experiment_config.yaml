@@ -1,0 +1,340 @@
+comet_ai_key: null
+context_observations:
+  add_rem: true
+  drop_time_zero_observations: true
+  empirical_number_of_obs: false
+  generative_bias: false
+  max_num_obs: 15
+  max_past: 5
+  min_past: 3
+  past_time_ratio: 0.1
+  split_past_future: false
+  type: pk_peak_half_life
+debug_test: ''
+dosing:
+  logdose_mean_range:
+  - -2.0
+  - 2.0
+  logdose_std_range:
+  - 0.1
+  - 0.5
+  num_individuals: 10
+  route_options:
+  - oral
+  - iv
+  route_weights:
+  - 0.8
+  - 0.2
+  same_route: true
+  time: 0.0
+experiment_dir: null
+experiment_indentifier: null
+experiment_name: uai
+experiment_type: nodepk
+hf_model_card_path:
+- hf_model_cards
+- AICME-PK_Readme.md
+hf_model_name: AICMEPK_cluster
+hugging_face_token: null
+meta_study:
+  V_tmag_range:
+  - 0.001
+  - 0.001
+  V_tscl_range:
+  - 1
+  - 5
+  drug_id_options:
+  - Drug_A
+  - Drug_B
+  - Drug_C
+  k_1p_tmag_range:
+  - 0.01
+  - 0.02
+  k_1p_tscl_range:
+  - 1
+  - 5
+  k_a_tmag_range:
+  - 0.01
+  - 0.02
+  k_a_tscl_range:
+  - 1
+  - 5
+  k_e_tmag_range:
+  - 0.01
+  - 0.02
+  k_e_tscl_range:
+  - 1
+  - 5
+  k_p1_tmag_range:
+  - 0.01
+  - 0.02
+  k_p1_tscl_range:
+  - 1
+  - 5
+  log_V_mean_range:
+  - 2
+  - 8
+  log_V_std_range:
+  - 0.2
+  - 0.6
+  log_k_1p_mean_range:
+  - -4
+  - 0
+  log_k_1p_std_range:
+  - 0.2
+  - 0.6
+  log_k_a_mean_range:
+  - -1
+  - 2
+  log_k_a_std_range:
+  - 0.2
+  - 0.6
+  log_k_e_mean_range:
+  - -5
+  - 0
+  log_k_e_std_range:
+  - 0.2
+  - 0.6
+  log_k_p1_mean_range:
+  - -4
+  - -1
+  log_k_p1_std_range:
+  - 0.2
+  - 0.6
+  num_individuals_range:
+  - 5
+  - 10
+  num_peripherals_range:
+  - 1
+  - 3
+  rel_ruv_range:
+  - 0.001
+  - 0.01
+  solver_method: rk4
+  time_num_steps: 100
+  time_start: 0.0
+  time_stop: 16.0
+mix_data:
+  evaluate_prediction_steps_past: 5
+  keep_tempfile: false
+  log_and_max: false
+  log_and_z: false
+  log_transform: false
+  n_of_databatches: null
+  n_of_permutations: 3
+  n_of_target_individuals: 1
+  normalize_by_max: true
+  normalize_time: true
+  recreate_tempfile: false
+  sample_size_for_generative_evaluation: null
+  sample_size_for_generative_evaluation_end_of_training: 500
+  sample_size_for_generative_evaluation_val: 10
+  store_in_tempfile: false
+  tempfile_path:
+  - preprocessed
+  - simulated_ou_as_rates
+  test_empirical_datasets:
+  - cesarali/lenuzza-2016
+  - cesarali/Indometacin
+  - cesarali/Theophylline
+  test_size: 128
+  tqdm_progress: false
+  train_size: 1280
+  val_size: 128
+  z_score_normalization: false
+my_results_path: /work/ojedamarin/Projects/Pharma/Results/
+name_str: AICMEPK_latent128
+network:
+  activation: ReLU
+  aggregator_num_heads: 8
+  aggregator_type: mean
+  combine_latent_mode: mlp
+  cov_proj_dim: 16
+  decoder_attention_layers: 2
+  decoder_hidden_dim: 512
+  decoder_name: TransformerDecoder
+  decoder_num_layers: 4
+  decoder_rnn_hidden_dim: 256
+  drift_activation: Tanh
+  drift_num_layers: 2
+  dropout: 0.1
+  encoder_rnn_hidden_dim: 256
+  exclusive_node_step: true
+  ignore_logvar: true
+  individual_encoder_name: RNNContextEncoder
+  individual_encoder_number_of_heads: 4
+  init_hidden_num_layers: 2
+  input_encoding_hidden_dim: 128
+  kl_weight: 1.0
+  loss_name: log_nll
+  node_step: true
+  norm: layer
+  output_head_num_layers: 3
+  prediction_latent_deterministic: false
+  prediction_only: false
+  reconstruction_only: false
+  rnn_decoder_number_of_layers: 4
+  rnn_individual_encoder_number_of_layers: 4
+  scale_dosing_amounts: true
+  study_latent_deterministic: false
+  time_obs_encoder_hidden_dim: 256
+  time_obs_encoder_output_dim: 256
+  use_attention: true
+  use_invariance_loss: false
+  use_kl_i: true
+  use_kl_i_np: true
+  use_kl_init: true
+  use_kl_s: true
+  use_self_attention: true
+  use_time_deltas: true
+  zi_latent_dim: 128
+run_index: 0
+tags:
+- AICME
+- UAI-Feb
+- B-0
+target_observations:
+  add_rem: true
+  drop_time_zero_observations: true
+  empirical_number_of_obs: 2
+  generative_bias: false
+  max_num_obs: 15
+  max_past: 5
+  min_past: 3
+  past_time_ratio: 0.1
+  split_past_future: true
+  type: pk_peak_half_life
+train:
+  amsgrad: false
+  batch_size: 64
+  betas:
+  - 0.9
+  - 0.999
+  callbacks_scheduler:
+    checkpoint_used_in_end:
+    - end
+    - best
+    - log_rmse
+    include_end: true
+    keep_temp_files: false
+    max_samples_per_group: 500
+    percent_step: 0.1
+    skip_sanity_check: true
+    store_samples: true
+    task_during:
+    - fn_key: pk.predictive.images
+      log_prefix: Synthetic
+      n_samples: 1
+      name: synthetic/predictive_images
+      sample_source: val_batch
+      save_to_disk: true
+      split: val
+      task_cfg:
+        label: Synthetic
+        milestone_stride: 1
+    - fn_key: pk.generative.images
+      log_prefix: Synthetic
+      n_samples: 10
+      name: synthetic/new_individuals_images
+      sample_source: val_batch
+      save_to_disk: true
+      split: val
+      task_cfg:
+        label: Synthetic
+        milestone_stride: 1
+    - fn_key: pk.empirical.predictive.metrics
+      log_prefix: Empirical
+      n_samples: 1
+      name: empirical/predictive_metrics
+      sample_source: empirical_set
+      save_to_disk: false
+      split: empirical_heldout
+      task_cfg:
+        label: Empirical
+        milestone_stride: 5
+    - checkpoint_metric: true
+      checkpoint_metric_name: log_rmse
+      checkpoint_mode: min
+      fn_key: pk.empirical.summary
+      log_prefix: Empirical
+      n_samples: 0
+      name: empirical/summary
+      sample_source: val_batch
+      save_to_disk: false
+      split: val
+      task_cfg:
+        label: Empirical
+        milestone_stride: 5
+        selected_summary_drugs:
+        - paracetamol glucuronide
+        - midazolam
+        summary_metric: log_rmse
+    tasks_end:
+    - fn_key: pk.empirical.predictive.metrics
+      log_prefix: Empirical
+      n_samples: 1
+      name: empirical/predictive_metrics
+      sample_source: empirical_set
+      save_to_disk: false
+      split: empirical_heldout
+      task_cfg:
+        label: Empirical
+    - fn_key: pk.predictive.images
+      log_prefix: Empirical
+      n_samples: 1
+      name: empirical/predictive_images
+      sample_source: empirical_set
+      save_to_disk: true
+      split: empirical_heldout
+      task_cfg:
+        label: Empirical
+    - fn_key: pk.vpc.npde_pvalues
+      log_prefix: Empirical
+      n_samples: 500
+      name: empirical/vpc_npde_pvalues
+      sample_source: empirical_set
+      save_to_disk: false
+      split: empirical_no_heldout
+      task_cfg:
+        label: Empirical
+    - fn_key: pk.vpc.images
+      log_prefix: Empirical
+      n_samples: 500
+      name: empirical/vpc_images
+      sample_source: empirical_set
+      save_to_disk: true
+      split: empirical_no_heldout
+      task_cfg:
+        label: Empirical
+    - fn_key: pk.empirical.summary
+      log_prefix: Empirical
+      n_samples: 0
+      name: empirical/summary
+      sample_source: val_batch
+      save_to_disk: false
+      split: val
+      task_cfg:
+        label: Empirical
+        selected_summary_drugs:
+        - paracetamol glucuronide
+        - midazolam
+        summary_metric: log_rmse
+    tasks_validation: []
+  epochs: 100
+  eps: 1.0e-08
+  gradient_clip_val: 0.5
+  learning_rate: 0.0001
+  log_interval: 1
+  num_batch_plot: 1
+  num_workers: 4
+  optimizer_name: AdamW
+  persistent_workers: true
+  scheduler_name: CosineAnnealingLR
+  scheduler_params:
+    T_max: 1000
+    eta_min: 5.0e-05
+    last_epoch: -1
+  shuffle_val: true
+  weight_decay: 0.0001
+upload_to_hf_hub: true
+verbose: false

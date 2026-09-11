@@ -1,0 +1,170 @@
+#!/bin/bash
+###############################################################################
+# model-dynamic-array.job – auto-generated 2026-02-20T21:10:36
+###############################################################################
+#SBATCH --partition=gpu
+#SBATCH --nodes=1
+#SBATCH --gpus=tesla_v100:1
+#SBATCH --ntasks-per-node=1
+#SBATCH --cpus-per-task=12
+#SBATCH --mem=12G
+#SBATCH --time=0-24:00
+#SBATCH --chdir=/work/ojedamarin/pff_runs
+#SBATCH --mail-type=END,FAIL
+#SBATCH --output=/work/ojedamarin/pff_runs/slurm-%A_%a.out
+#SBATCH --array=0-3
+###############################################################################
+
+# proxies & env
+export http_proxy=http://proxy2.uni-potsdam.de:3128
+export https_proxy=http://proxy2.uni-potsdam.de:3128
+export ftp_proxy=http://proxy2.uni-potsdam.de:3128
+
+# module load lang/Miniforge3/24.1.2-0
+# conda activate sim-priors-pk
+
+# ─── fixed hyper-params ─────────────────────────────────────────
+EPOCHS=10
+TRAIN_SIZE=256
+BATCH_SIZE=64
+NUM_WORKERS=8
+TEST_SIZE=64
+VAL_SIZE=64
+VAL_EVERY_PCT=0.5
+EMPIRICAL_EVERY_PCT=0.5
+
+# ─── auto-generated parameter arrays ───────────────────────────
+INDIVIDUAL_ENCODER_NAME=("RNNContextEncoder" "RNNContextEncoder" "RNNContextEncoder" "RNNContextEncoder")
+TIME_OBS_ENCODER_HIDDEN_DIM=("256" "256" "256" "256")
+TIME_OBS_ENCODER_OUTPUT_DIM=("256" "256" "256" "256")
+OUTPUT_HEAD_NUMBER_LAYERS=("3" "3" "3" "3")
+RNN_INDIVIDUAL_ENCODER_NUMBER_OF_LAYERS=("4" "4" "4" "4")
+ENCODER_RNN_HIDDEN_DIM=("256" "256" "256" "256")
+DECODER_NAME=("TransformerDecoder" "TransformerDecoder" "RNNDecoder" "RNNDecoder")
+INIT_HIDDEN_NUM_LAYERS=("2" "2" "2" "2")
+DECODER_RNN_HIDDEN_DIM=("256" "256" "256" "256")
+DECODER_HIDDEN_DIM=("512" "512" "512" "512")
+RNN_DECODER_NUMBER_OF_LAYERS=("4" "4" "4" "4")
+ZI_LATENT_DIM=("256" "256" "256" "256")
+STUDY_LATENT_DETERMINISTIC=("False" "False" "False" "False")
+PREDICTION_LATENT_DETERMINISTIC=("False" "False" "False" "False")
+PREDICTION_ONLY=("True" "False" "True" "False")
+USE_KL_S=("True" "True" "True" "True")
+USE_KL_I=("True" "True" "True" "True")
+USE_KL_I_NP=("True" "True" "True" "True")
+USE_INVARIANCE_LOSS=("False" "False" "False" "False")
+USE_SELF_ATTENTION=("True" "True" "True" "True")
+USE_TIME_DELTAS=("True" "True" "True" "True")
+DECODER_NUM_LAYERS=("4" "4" "4" "4")
+LEARNING_RATE=("0.0001" "0.0001" "0.0001" "0.0001")
+EMPIRICAL_NUMBER_OF_OBS=("False" "False" "False" "False")
+NODE_STEP=("True" "True" "True" "True")
+EXCLUSIVE_NODE_STEP=("True" "True" "True" "True")
+PRETRAINING_EPOCHS=("8" "8" "8" "8")
+AGGREGATOR_TYPE=("mean" "mean" "mean" "mean")
+AGGREGATOR_NUM_HEADS=("8" "8" "8" "8")
+KEEP_TEMPFILE=("False" "False" "False" "False")
+STORE_IN_TEMPFILE=("False" "False" "False" "False")
+RECREATE_TEMPFILE=("False" "False" "False" "False")
+DOSING_SAME_ROUTE=("True" "True" "True" "True")
+LOSS_NAME=("log_nll" "log_nll" "log_nll" "log_nll")
+MODEL_TYPE=("aicme" "aicme" "aicme" "aicme")
+CONFIG_PATH=("/home/cesarali/Pharma/pff/config_files/experiment_configs/UAI/aicme-t-pk/base.yaml" "/home/cesarali/Pharma/pff/config_files/experiment_configs/UAI/aicme-t-pk/base.yaml" "/home/cesarali/Pharma/pff/config_files/experiment_configs/UAI/aicme-t-pk/base.yaml" "/home/cesarali/Pharma/pff/config_files/experiment_configs/UAI/aicme-t-pk/base.yaml")
+PRETRAINING_PROTOCOL=("none" "none" "none" "none")
+HF_MODEL_NAME=("AICMEPK_cluster" "AICMEPK_cluster" "AICMEPK_cluster" "AICMEPK_cluster")
+
+# ─── array index ───────────────────────────────────────────────
+RUN_INDEX=$SLURM_ARRAY_TASK_ID
+
+# ─── tag logic ─────────────────────────────────────────────────
+CONFIG_PATH=${CONFIG_PATH[$RUN_INDEX]}
+
+if [[ "$CONFIG_PATH" == *"snode-pk"* ]]; then
+  TAG="S-0"
+elif [[ "$CONFIG_PATH" == *"cvae-node-pk"* ]]; then
+  TAG="C-0"
+elif [[ "$CONFIG_PATH" == *"neural-process"* ]]; then
+  TAG="N-0"
+else
+  case "${PRETRAINING_PROTOCOL[$RUN_INDEX]}" in
+    none)        TAG="B-0" ;;
+    exclusive)   TAG="B-1" ;;
+    fine-tuning) TAG="B-2" ;;
+    *)           TAG="debug" ;;
+  esac
+fi
+
+
+# ─── script paths ──────────────────────────────────────────────
+PYTHON_PATH="/home/ojedamarin/.conda/envs/sim-priors-pk/bin/python"
+SCRIPT_PATH="/home/ojedamarin/Projects/Pharma/pff/scripts/training/train_model.py"
+MY_RESULTS_PATH="/work/ojedamarin/Projects/Pharma/Results/"
+REPO_ROOT="/home/ojedamarin/Projects/Pharma/pff"
+
+# ─── override string ───────────────────────────────────────────
+MODEL_TYPE_CURRENT=${MODEL_TYPE[$RUN_INDEX]}
+if [[ "$MODEL_TYPE_CURRENT" == "flow-pk" ]]; then
+  OVERRIDE_ARGS=""
+else
+  OVERRIDE=(
+    train.epochs=$EPOCHS
+    train.batch_size=$BATCH_SIZE
+    train.num_workers=$NUM_WORKERS
+    mix_data.train_size=$TRAIN_SIZE
+    mix_data.test_size=$TEST_SIZE
+    mix_data.val_size=$VAL_SIZE
+    network.individual_encoder_name=${INDIVIDUAL_ENCODER_NAME[$RUN_INDEX]}
+    network.time_obs_encoder_hidden_dim=${TIME_OBS_ENCODER_HIDDEN_DIM[$RUN_INDEX]}
+    network.time_obs_encoder_output_dim=${TIME_OBS_ENCODER_OUTPUT_DIM[$RUN_INDEX]}
+    network.rnn_individual_encoder_number_of_layers=${RNN_INDIVIDUAL_ENCODER_NUMBER_OF_LAYERS[$RUN_INDEX]}
+    network.init_hidden_num_layers=${INIT_HIDDEN_NUM_LAYERS[$RUN_INDEX]}
+    network.encoder_rnn_hidden_dim=${ENCODER_RNN_HIDDEN_DIM[$RUN_INDEX]}
+    network.decoder_rnn_hidden_dim=${DECODER_RNN_HIDDEN_DIM[$RUN_INDEX]}
+    network.decoder_hidden_dim=${DECODER_HIDDEN_DIM[$RUN_INDEX]}
+    network.zi_latent_dim=${ZI_LATENT_DIM[$RUN_INDEX]}
+    network.decoder_name=${DECODER_NAME[$RUN_INDEX]}
+    network.decoder_num_layers=${DECODER_NUM_LAYERS[$RUN_INDEX]}
+    network.rnn_decoder_number_of_layers=${RNN_DECODER_NUMBER_OF_LAYERS[$RUN_INDEX]}
+    network.output_head_num_layers=${OUTPUT_HEAD_NUMBER_LAYERS[$RUN_INDEX]}
+    network.exclusive_node_step=${EXCLUSIVE_NODE_STEP[$RUN_INDEX]}
+    network.aggregator_type=${AGGREGATOR_TYPE[$RUN_INDEX]}
+    network.aggregator_num_heads=${AGGREGATOR_NUM_HEADS[$RUN_INDEX]}
+    network.use_self_attention=${USE_SELF_ATTENTION[$RUN_INDEX]}
+    network.use_time_deltas=${USE_TIME_DELTAS[$RUN_INDEX]}
+    network.use_invariance_loss=${USE_INVARIANCE_LOSS[$RUN_INDEX]}
+    network.use_kl_i_np=${USE_KL_I_NP[$RUN_INDEX]}
+    network.use_kl_i=${USE_KL_I[$RUN_INDEX]}
+    network.use_kl_s=${USE_KL_S[$RUN_INDEX]}
+    network.loss_name=${LOSS_NAME[$RUN_INDEX]}
+    network.prediction_only=${PREDICTION_ONLY[$RUN_INDEX]}
+    network.study_latent_deterministic=${STUDY_LATENT_DETERMINISTIC[$RUN_INDEX]}
+    network.prediction_latent_deterministic=${PREDICTION_LATENT_DETERMINISTIC[$RUN_INDEX]}
+    train.learning_rate=${LEARNING_RATE[$RUN_INDEX]}
+    mix_data.pretraining_protocol=${PRETRAINING_PROTOCOL[$RUN_INDEX]}
+    mix_data.pretraining_epochs=${PRETRAINING_EPOCHS[$RUN_INDEX]}
+    mix_data.keep_tempfile=${KEEP_TEMPFILE[$RUN_INDEX]}
+    mix_data.store_in_tempfile=${STORE_IN_TEMPFILE[$RUN_INDEX]}
+    mix_data.recreate_tempfile=${RECREATE_TEMPFILE[$RUN_INDEX]}
+    dosing.same_route=${DOSING_SAME_ROUTE[$RUN_INDEX]}
+    context_observations.empirical_number_of_obs=${EMPIRICAL_NUMBER_OF_OBS[$RUN_INDEX]}
+    "tags=[\"AICME\",\"UAI-Feb\",\"$TAG\"]"
+    run_index=$RUN_INDEX
+    my_results_path=$MY_RESULTS_PATH
+    hf_model_name=${HF_MODEL_NAME[$RUN_INDEX]}
+    debug_test=$DEBUG_TEST
+  )
+
+  FILTERED=()
+  for entry in "${OVERRIDE[@]}"; do
+    if [[ ! "$entry" =~ None|none|NaN|nan ]]; then
+      FILTERED+=("$entry")
+    fi
+  done
+
+  OVERRIDE_ARGS="--override ${FILTERED[*]}"
+fi
+
+
+# ─── run ────────────────────────────────────────────────────────
+echo "▶ Task $SLURM_ARRAY_TASK_ID | config=$(basename $CONFIG_PATH) | protocol=${PRETRAINING_PROTOCOL[$RUN_INDEX]} | tag=$TAG"
+srun "$PYTHON_PATH" "$SCRIPT_PATH" --config_path "$CONFIG_PATH" $OVERRIDE_ARGS

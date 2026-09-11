@@ -1,0 +1,82 @@
+#!/bin/bash
+
+#SBATCH --partition=gpu
+#SBATCH --nodes=1
+#SBATCH --gpus=a100_40gb:1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=10
+#SBATCH --mem=12G
+#SBATCH --time=0-00:30
+#SBATCH --chdir=/work/ojedamarin/testjobs
+#SBATCH --mail-type=ALL
+#SBATCH --output=slurm-%j.out
+
+export http_proxy=http://proxy2.uni-potsdam.de:3128
+export https_proxy=http://proxy2.uni-potsdam.de:3128
+export ftp_proxy=http://proxy2.uni-potsdam.de:3128
+
+module load lang/Miniforge3/24.1.2-0
+source activate generative-pk
+
+# Hyperparameters
+EPOCHS=500
+BATCH_SIZE=16
+NUM_WORKERS=8
+LOG_IMAGE_EVERY_EPOCH=10
+TRAIN_SIZE=500
+TEST_SIZE=20
+VAL_SIZE=20
+
+# Experiment variations
+INDIVIDUAL_ENCODER_NAME=("RNNContextEncoder" "RNNContextEncoder" "RNNContextEncoder")
+TIME_OBS_ENCODER_HIDDEN_DIM=(32 64 128)
+TIME_OBS_ENCODER_OUTPUT_DIM=(16 32 128)
+INDIVIDUAL_ENCODER_NUMBER_OF_LAYERS=(2 3 4)
+RNN_HIDDEN_DIM=(128 256 512)
+ZI_LATENT_DIM=(200 300 400)
+DECODER_NAME=("RNNDecoder" "RNNDecoder" "RNNDecoder")
+DECODER_NUM_LAYERS=(2 3 4)
+USE_SELF_ATTENTION=(True True True)
+USE_TIME_DELTAS=(True True True)
+LEARNING_RATE=(0.001 0.0005 0.0001)
+
+# Index
+RUN_INDEX=${SLURM_ARRAY_TASK_ID:-0}
+
+# Paths
+CONFIG_PATH="/home/ojedamarin/Projects/Pharma/generative_pk/config_files/experiment_configs/node-pk/node-pk-2105.yaml"
+PYTHON_PATH="/home/ojedamarin/.conda/envs/generative-pk/bin/python"
+SCRIPT_PATH="/home/ojedamarin/Projects/Pharma/generative_pk/scripts/training/train_model.py"
+MY_RESULTS_PATH="/work/ojedamarin/Projects/Pharma/Results/"
+
+# Build override string
+OVERRIDE=(
+  train.epochs=$EPOCHS
+  train.batch_size=$BATCH_SIZE
+  train.num_workers=$NUM_WORKERS
+  train.log_image_every_epoch=$LOG_IMAGE_EVERY_EPOCH
+  mix_data.train_size=$TRAIN_SIZE
+  mix_data.test_size=$TEST_SIZE
+  mix_data.val_size=$VAL_SIZE
+  network.individual_encoder_name=${INDIVIDUAL_ENCODER_NAME[$RUN_INDEX]}
+  network.time_obs_encoder_hidden_dim=${TIME_OBS_ENCODER_HIDDEN_DIM[$RUN_INDEX]}
+  network.time_obs_encoder_output_dim=${TIME_OBS_ENCODER_OUTPUT_DIM[$RUN_INDEX]}
+  network.individual_encoder_number_of_layers=${INDIVIDUAL_ENCODER_NUMBER_OF_LAYERS[$RUN_INDEX]}
+  network.rnn_hidden_dim=${RNN_HIDDEN_DIM[$RUN_INDEX]}
+  network.zi_latent_dim=${ZI_LATENT_DIM[$RUN_INDEX]}
+  network.decoder_name=${DECODER_NAME[$RUN_INDEX]}
+  network.decoder_num_layers=${DECODER_NUM_LAYERS[$RUN_INDEX]}
+  network.use_self_attention=${USE_SELF_ATTENTION[$RUN_INDEX]}
+  network.use_time_deltas=${USE_TIME_DELTAS[$RUN_INDEX]}
+  train.learning_rate=${LEARNING_RATE[$RUN_INDEX]}
+  run_index=$RUN_INDEX
+  my_results_path=$MY_RESULTS_PATH
+)
+
+# Join override into single CLI argument
+OVERRIDE_ARGS=$(printf -- "--override %s " "${OVERRIDE[@]}")
+
+# Run
+$PYTHON_PATH $SCRIPT_PATH \
+  --config_path $CONFIG_PATH \
+  $OVERRIDE_ARGS

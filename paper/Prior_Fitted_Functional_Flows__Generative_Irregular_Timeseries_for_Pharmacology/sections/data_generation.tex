@@ -1,0 +1,257 @@
+
+In this section, we introduce a data generation model that combines compartmental PK systems with stochastic, time-varying parameters.
+%
+We use this model to generate a large synthetic training dataset.
+%
+We begin by presenting the compartmental PK systems (Section~\ref{sec:pk-systems}), followed by the prior over their parameterization (Section~\ref{sec:param-model}).
+%
+We then describe the observation model (Section~\ref{sec:obs-model}) and, finally, formally specify the full generative process as the probability of observing PK trajectories (Section~\ref{sec:gen-model}).
+
+\subsection{Compartmental Pharmacokinetic Systems}
+\label{sec:pk-systems}
+
+Each simulated study consists of $I$ individuals, where each individual is characterized by a time-varying latent state $\mathbf{X}(t) \in \mathbb{R}^{2+P}$ that represents the drug amount in the gut, central (c), and $P$ peripheral (per) compartments. That is
+\begin{equation}
+    \mathbf{X}(t)= \Bigl(X_{\text{gut}},\,X_{c},\,X_{\text{per},1}, \dots, X_{\text{per},P} \Bigr)^{\!\top}.
+\end{equation}
+%
+% \[
+% \mathbf{X}(t)=
+%   \Bigl(
+%     X_{\text{gut}},\,
+%     X_{c},\,
+%     X_{\text{per},1},\dots,X_{\text{per},P}
+%   \Bigr)^{\!\top}\in\mathbb{R}^{2+P}
+% \]
+%
+which solves the ODE system
+\begin{align}
+\dot X_{\text{gut}}      &= -k_{a}\,X_{\text{gut}}, \nonumber\\
+\dot X_{c}               &= k_{a}X_{\text{gut}}
+                           -\Bigl(k_{e}+\sum_{j=1}^{P}k^{+}_{j}\Bigr)X_{c}
+                           +\sum_{j=1}^{P}k^{-}_{j}X_{\text{per},j}, \nonumber\\
+\dot X_{\text{per},j}    &= k^{+}_{j}X_{c}-k^{-}_{j}X_{\text{per},j},                
+\label{eq:pk-odes}                           
+\end{align}
+with $j$ running from $1$ to $P$.
+%
+The initial condition is determined by the dose and the dosing route (i.e.,~$X_{u_2=c}(0)=u_1$ for intravenous dosing and $X_{u_2=\text{gut}}(0) = u_1$ for oral dosing), while all other states are initialized at zero.
+%
+The number of individuals, the number of peripheral compartments, as well as the dose and dosing route, are randomly drawn for each simulated study.
+%
+Next, we define the \textit{kinetic parameters} $k_a, k_e, k^+_1,  k^-_1,..., k^+_P, k^-_P$ underlying these PK systems. 
+
+\subsection{Stochastic parameter model}
+\label{sec:param-model}
+
+Let $\theta_i(t)=\log ( V^i, k^i_a,  k^i_e, , k^{i+}_1,  k^{i-}_1,..., k^{i+}_P, k^{i-}_P)$ denote the time-dependent vector of log-kinetic parameters (plus the volume of distribution $V^i$ which appears in the observation model, Section~\ref{sec:obs-model}, below) for the $i$th individual.
+%
+Let each component $\theta_{i,k}$, with $k\in\{1,\dots,3+2P\}=:\mathcal{K}$, evolve as an independent OU process
+%
+\begin{equation}
+d\theta_{i,k}(t)=
+  -\lambda_{k}\!\left(\theta_{i,k}(t)-\mu_{i,k}\right)\,dt
+  +\sigma_{k}\,dW_{i,k}(t),
+\label{eq:ou}
+\end{equation}
+%
+initialized at $\theta_{i,k}(0)\sim \mathcal{N}(\mu_{i,k},\sigma_k^2/(2\lambda_k))$ to ensure stationarity.
+% , i.e., $\theta_{i,k}(t)\sim \mathcal{N}(\mu_{i,k},\sigma^2/(2\lambda))$ for $t\ge 0$.
+
+The OU parameters $(\mu_{i,k}, \sigma_{k}, \lambda_{k})$ are themselves random variables, sampled according to the following distributions
+%
+\begin{align}
+    \mu_{i,k}|m_k,s_k &\sim \mathcal{N}(m_{k}, s_{k}^{2}), \\
+    \lambda_{k}^2  &\sim \mathcal{U}(a_\lambda,b_\lambda), \\
+    \sigma_{k}^{2}/2\lambda_k &\sim \mathcal{U}(a_\sigma,b_\sigma),
+\end{align}
+where $m_k\sim \mathcal{U}(a_{m_k},b_{m_k})$, $s_k\sim \mathcal{U}(a_{s_k},b_{s_k}),$
+% \begin{center}
+% \begin{minipage}{0.48\linewidth}
+% \begin{align*}
+% m_k       &\sim \mathcal{U}(a_{m_k},b_{m_k}), \\
+% s_k       &\sim \mathcal{U}(a_{s_k},b_{s_k}), \\
+% \mu_{i,k}|m_k,s_k      &\sim \mathcal{N}(m_{k}, s_{k}^{2}),
+% \end{align*}
+% \end{minipage}
+% \hfill
+% \begin{minipage}{0.48\linewidth}
+% \begin{align*}
+% \lambda_{k}^2  &\sim \mathcal{U}(a_\lambda,b_\lambda), \\
+% \frac{\sigma_{k}^{2}}{2\lambda_k} & \sim \mathcal{U}(a_\sigma,b_\sigma).
+% \end{align*}
+% \end{minipage}
+% \end{center}
+% \vspace{0.1cm}
+and the values of $a_{m_k},b_{m_k},a_{s_k}$ and $b_{s_k}$ are chosen based on a meta-analysis of NLME model fits, and determine the shape of typical PK trajectories.
+%
+Similarly, the parameters $a_\lambda,b_\lambda,a_\sigma$ and $b_\sigma$ are set empirically to yield physiologically plausible PK profiles.
+%
+We conclude this section by noting that if $\theta_k(t) \equiv \mu_k$, the data-generating process reduces to a standard compartmental PK model.
+%
+Parameter stochasticity is induced through Eq.~\ref{eq:ou}, precisely to enable generalization beyond this parametric family.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figures/NotationIllustration.pdf}
+    \caption{Left: hierarchical latent structure assumed in our AICMET model. 
+        Shaded nodes are observed.
+        All latent representations ($z_i,z_s,z_n$) are continuous; 
+        solid blue arrows indicate conditional dependencies (decoder), orange dashed arrows indicate the recognition network (encoder).
+%        The recognition network that produces the approximate posteriors $q$ is described in Section~\ref{sec:architecture}.
+        Right: different levels of context entering the predictive distribution \eqref{eq:predictive}.
+        }
+    \label{fig:graphical-model}
+\end{figure}
+
+\subsection{Observation Model}
+\label{sec:obs-model}
+
+In this section, we first describe the random selection of observation times ($\tau$) and, based on these, the construction of synthetic concentration samples ($y$).
+%
+To ensure meaningful observation times for each study, we estimate two characteristic timescales: the time to reach peak plasma concentration $T_\text{peak}$, and the drug half-life $T_\text{half}$. 
+%
+These timescales are obtained using a one-compartment model with first-order absorption. To wit
+%
+\begin{equation*}
+T_\text{peak} = \frac{\log(\bar k_a) - \log(\bar k_e)}{\bar k_a - \bar k_e},\qquad
+T_\text{half} = \frac{\log(2)}{\bar k_e},
+\end{equation*}
+for typical parameters at the study level (\textit{i.e.}, $\bar k_a = e^{m_1}$ and $\bar k_e = e^{m_2}$).
+
+Irregular plasma samples are then simulated at subject–specific times
+\(0\le \tau^i_{1} < \dots < \tau^i_{T_i}\le \tau_\text{max}\). 
+%
+These times are chosen to mimic the design of experimental studies. 
+%
+Specifically, we select four equally spaced observations before $T_\text{peak}$, and six observations after $T_\text{peak}$, placed at increasingly wider intervals determined by $T_\text{half}$. 
+%
+This design reflects typical sampling schedules.
+%
+Finally, we randomly subsample the number of observations according to empirical sample-size distributions, and handle mismatched sizes through masking. 
+%
+The observed plasma concentrations ($y$) are obtained by evaluating simulated trajectories at the selected times, and applying a proportional measurement error model. In equations, we write
+\begin{equation}
+y^i_{j} \;=\; \frac{X^i_{c}(\tau^i_{j})}{V^{i}(\tau^i_{j})}
+             (1\;+\; \varepsilon_{i,j}),
+\quad
+\varepsilon_{i,j}\sim\mathcal{N}\!\bigl(0,\sigma_{\text{obs}}^{2}\bigr).
+\label{eq:obs}
+\end{equation}
+% the full observation set for individual $i$ is denoted by 
+% \(
+% \mathcal{D}^{i}=(\boldsymbol{\tau}^{i},\mathbf{Y}^{i})
+% \)
+% with
+% \(
+% \boldsymbol{\tau}^{i}=(\tau^i_{1},\dots,\tau^i_{T_i})
+% \) and \(
+% \mathbf{Y}^{i}=(Y^i_{1},\dots,Y^i_{T_i}).
+% \)
+
+\subsection{(Prior) Generative Data Model}
+\label{sec:gen-model}
+
+Introducing $\eta_k = (m_k,s_k,\lambda_k,\sigma_k)$, and collecting these into $\boldsymbol{\eta}= (\eta_k)_{k\in\mathcal{K}}$, 
+%
+we can formally write the joint probability underlying the generation of our synthetic study $\mathcal{S}=\{\mathcal{D}^{1},\dots,\mathcal{D}^{I}\}$ as in Eq.~\ref{eq:mybigeq}.
+%
+In this expression, $\mathcal{T}$ denotes a fine simulation grid, 
+%
+$p_{\text{OU}}$ the OU transition density implied by Eq.~\ref{eq:ou},
+%
+$p_{\text{ode}}$ the flow defined by Eq.~\ref{eq:pk-odes}, and  
+$p_{\text{obs}}$ the observation model from Eq.~\ref{eq:obs}. 
+%
+Equation~\eqref{eq:mybigeq} thus serves both as the blueprint for synthetic data generation, and as the conceptual backbone of our in-context learning objective.
+%
+Next, we introduce a latent variable model that matches the \textit{marginal} prior Eq.~\eqref{eq:mybigeq}.
+
+% \(
+% \mathcal{S}=\{\mathcal{D}^{1},\dots,\mathcal{D}^{I}\}
+% \)
+
+%
+% \begin{align}
+% &p(\boldsymbol{\eta},T_\text{peak},T_\text{half},\boldsymbol{\theta},\boldsymbol{\mu},\boldsymbol{\tau},\mathbf{X},\mathbf{Y}) \nonumber \\[0.3em]
+% &=
+%   p_{\text{pop}}(\boldsymbol{\eta})\;
+%   p(T_\text{peak},T_\text{half}\mid\boldsymbol{\eta})\nonumber\\
+% &\quad\times\;
+%   \prod_{i=1}^{I}
+%   p_{\text{ind}}\!\left(\boldsymbol{\theta}_{i}(0),\boldsymbol{\mu}_{i}\mid\boldsymbol{\eta}\right) \, \times\nonumber\\[-0.8em]
+% &\qquad\quad\;\;\,\,
+%   p_{\text{dose}}\!\left(\boldsymbol{X}^{i}(0)\right) 
+%   p_{\text{time}}(\boldsymbol{\tau}^i\mid T_\text{peak},T_\text{half})
+% \nonumber\\[0.3em]
+%   &\quad\times\;
+%   \prod_{t\in\mathcal{T}}
+%      p_{\text{OU}}\!\left(\boldsymbol{\theta}_{i}(t+\Delta t)\mid\boldsymbol{\theta}_{i}(t),\boldsymbol{\eta},\boldsymbol{\mu}_{i}\right)\, \times\nonumber\\[-0.8em]
+% &\qquad\qquad%\;\,\,
+% %  \prod_{t\in\mathcal{T}}
+%      p_{\text{ode}}\!\left(\mathbf{X}^{i}(t+\Delta t)\mid
+%      \mathbf{X}^{i}(t),\boldsymbol{\theta}_{i}(t)\right)
+% \nonumber\\[-0.2em]
+% &\quad\times\;
+%   \prod_{j=1}^{T_i}
+%      p_{\text{obs}}\!\left(Y^i_{j}\mid\mathbf{X}^{i}(\tau^i_{j}),\boldsymbol{\theta}_{i}(\tau^i_{j})\right),
+% \label{eq:pk-path-prob}
+% \end{align}
+%
+\begin{eqfloat}
+  \centering
+  \fbox{
+  \begin{minipage}{0.95\columnwidth}      
+      % your very long equation here
+      \begin{align}
+      \label{eq:mybigeq}
+    &p(\boldsymbol{\eta},T_\text{peak},T_\text{half},\boldsymbol{\theta},\boldsymbol{\mu},\boldsymbol{\tau},\mathbf{X},\mathbf{Y}) \nonumber \\
+    &=
+    p(\boldsymbol{\eta})\;
+  p(T_\text{peak},T_\text{half}\mid\boldsymbol{\eta})
+  \prod_{i=1}^{I}
+  p\!\left(\boldsymbol{\theta}_{i}(0),\boldsymbol{\mu}_{i}\mid\boldsymbol{\eta}\right) \, \nonumber\\
+    &  \, \quad \times
+  p\left(\boldsymbol{X}^{i}(0)\right) 
+  p(\boldsymbol{\tau}^i\mid T_\text{peak},T_\text{half})
+\nonumber\\[0.3em]
+    &\quad\times\;
+  \prod_{t\in\mathcal{T}}
+     p_{\text{OU}}\!\left(\boldsymbol{\theta}_{i}(t+\Delta t)\mid\boldsymbol{\theta}_{i}(t),\boldsymbol{\eta},\boldsymbol{\mu}_{i}\right)\, \nonumber\\%[-0.8em]
+    &\qquad\qquad%\;\,\,
+%  \prod_{t\in\mathcal{T}}
+     \times p_{\text{ode}}\!\left(\mathbf{X}^{i}(t+\Delta t)\mid
+     \mathbf{X}^{i}(t),\boldsymbol{\theta}_{i}(t)\right)
+\nonumber\\ %[-0.2em]
+    &\quad\times\;
+  \prod_{j=1}^{T_i}
+     p_{\text{obs}}\!\left(y^i_{j}\mid\mathbf{X}^{i}(\tau^i_{j}),\boldsymbol{\theta}_{i}(\tau^i_{j})\right).
+    \end{align}    
+  \end{minipage}
+  }
+  \caption{AICMET Prior Distribution}
+\end{eqfloat}
+
+% \begin{strip}
+% \begin{align}
+% \nonumber 
+% p(\boldsymbol{\eta},T_\text{peak},T_\text{half},\boldsymbol{\theta},\boldsymbol{\mu},\boldsymbol{\tau},\mathbf{X},\mathbf{Y}) 
+% =&
+%   p(\boldsymbol{\eta})\;
+%   p(T_\text{peak},T_\text{half}\mid\boldsymbol{\eta})
+%   \prod_{i=1}^{I}
+%   p\!\left(\boldsymbol{\theta}_{i}(0),\boldsymbol{\mu}_{i}\mid\boldsymbol{\eta}\right) p_{\text{dose}}\!\left(\boldsymbol{X}^{i}(0)\right) p(\boldsymbol{\tau}^i\mid T_\text{peak},T_\text{half})  \\ \nonumber
+%   &  
+%   \times \prod_{t\in\mathcal{T}}
+%      p_{\text{OU}}\!\left(\boldsymbol{\theta}_{i}(t+\Delta t)\mid\boldsymbol{\theta}_{i}(t),\boldsymbol{\eta},\boldsymbol{\mu}_{i}\right)\, \times
+%      p_{\text{ode}}\!\left(\mathbf{X}^{i}(t+\Delta t)\mid
+%      \mathbf{X}^{i}(t),\boldsymbol{\theta}_{i}(t)\right)\times\;
+%    \\ & \prod_{j=1}^{T_i}
+%      p_{\text{obs}}\!\left(Y^i_{j}\mid\mathbf{X}^{i}(\tau^i_{j}),\boldsymbol{\theta}_{i}(\tau^i_{j})\right),
+% \label{eq:pk-path-prob}
+% \end{align}
+% \end{strip}
+
+
+
+

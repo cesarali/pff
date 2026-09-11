@@ -1,0 +1,30 @@
+{
+  "context": [
+    {
+      "name_id": "C01",
+      "observations": [1.1, 2.2, 3.3],
+      "observation_times": [0.5, 1.0, 1.5],
+      "dosing": [100.0],
+      "dosing_type": ["iv"],
+      "dosing_times": [0.0],
+      "dosing_name": ["doseA"]
+    }
+  ],
+  "target": [
+    {
+      "name_id": "T01",
+      "observations": [0.9, 1.8, 2.7],
+      "observation_times": [0.5, 1.0, 1.5],
+      "remaining": [1.0, 0.8, 0.5],
+      "remaining_times": [2.0, 3.0, 4.0],
+      "dosing": [100.0],
+      "dosing_type": ["iv"],
+      "dosing_times": [0.0],
+      "dosing_name": ["doseA"]
+    }
+  ],
+  "meta_data": {
+    "study_name": "StudyCtxTgt",
+    "substance_name": "DrugX"
+  }
+}

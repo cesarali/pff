@@ -1,0 +1,54 @@
+{
+  "context": [
+    {
+      "name_id": "S01-P001",
+      "observations": [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0],
+      "observation_times": [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0],
+      "dosing": [50.0],
+      "dosing_type": ["oral"],
+      "dosing_times": [0.0],
+      "dosing_name": ["doseA"]
+    },
+    {
+      "name_id": "S01-P002",
+      "observations": [0.4, 0.9, 1.4, 1.9, 2.4, 2.9, 3.4, 3.9, 4.4, 4.9],
+      "observation_times": [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0],
+      "dosing": [50.0],
+      "dosing_type": ["oral"],
+      "dosing_times": [0.0],
+      "dosing_name": ["doseA"]
+    },
+    {
+      "name_id": "S01-P003",
+      "observations": [0.3, 0.8, 1.3, 1.8, 2.3, 2.8, 3.3, 3.8, 4.3, 4.8],
+      "observation_times": [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0],
+      "dosing": [50.0],
+      "dosing_type": ["oral"],
+      "dosing_times": [0.0],
+      "dosing_name": ["doseA"]
+    },
+    {
+      "name_id": "S01-P004",
+      "observations": [0.2, 0.7, 1.2, 1.7, 2.2, 2.7, 3.2, 3.7, 4.2, 4.7],
+      "observation_times": [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0],
+      "dosing": [50.0],
+      "dosing_type": ["oral"],
+      "dosing_times": [0.0],
+      "dosing_name": ["doseA"]
+    },
+    {
+      "name_id": "S01-P005",
+      "observations": [0.1, 0.6, 1.1, 1.6, 2.1, 2.6, 3.1, 3.6, 4.1, 4.6],
+      "observation_times": [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0],
+      "dosing": [50.0],
+      "dosing_type": ["oral"],
+      "dosing_times": [0.0],
+      "dosing_name": ["doseA"]
+    }
+  ],
+  "target": [],
+  "meta_data": {
+    "study_name": "StudyCtxOnlyLong",
+    "substance_name": "DrugX"
+  }
+}

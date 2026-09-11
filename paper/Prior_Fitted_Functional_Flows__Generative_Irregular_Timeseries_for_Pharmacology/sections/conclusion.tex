@@ -1,0 +1,10 @@
+
+We introduced Prior-Fitted Functional Flows (PFF), a generative foundation model for pharmacokinetics that enables zero-shot population synthesis and individual forecasting without manual parameter tuning. By learning functional vector fields conditioned on entire study populations, PFF captures complex, multi-modal distributions that classical methods often miss. Crucial to our methodology is the construction of a large-scale, open-access literature benchmark, which we used to rigorously validate the physiological realism of our synthetic priors.
+\paragraph{Limitations.} While PFF demonstrates state-of-the-art accuracy, it currently relies on purely synthetic pre-training (though informed by our systematic literature-mined corpus). Incorporating real-world clinical data into the pre-training would further enhance its ability to capture the pathological variability of specific disease populations. Furthermore, our current validation focuses on single-dose studies; extending the framework to handle complex, irregular multi-dosing remains a key direction for future work. Finally, as with all generative models, there is a risk of generating plausible but incorrect trajectories in extremely sparse data regimes, necessitating careful uncertainty quantification in clinical applications.
+\subsection*{Acknowledgements}
+\label{sec:scknowledgement}
+
+This research has been funded by the Deutsche Forschungsgemeinschaft (DFG) --- Project-ID 318763901 --- SFB1294 and by the DFG under Germany´s Excellence Strategy – The Berlin Mathematics
+Research Center MATH+ (EXC-2046/1, EXC-2046/2, project ID: 390685689); and by the Federal Ministry of Education and Research of Germany and the state of North-Rhine Westphalia as part of the Lamarr Institute for Machine Learning and Artificial Intelligence. DAF is supported by DOE grant
+DOE-SC0010008. This research used resources of the National Energy Research Scientific Computing Center, a DOE Office of
+Science User Facility supported by the Office of Science of the U.S. Department of Energy under Contract No. DE-AC02-05CH11231 using NERSC award HEPERCAP0027491

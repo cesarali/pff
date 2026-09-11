@@ -1,0 +1,79 @@
+#!/bin/bash
+
+###############################################################################
+# model-single-run.job – single config, no array
+###############################################################################
+#SBATCH --partition=gpu
+#SBATCH --nodes=1
+#SBATCH --gpus=tesla_v100:3
+#SBATCH --ntasks-per-node=3
+#SBATCH --cpus-per-task=12
+#SBATCH --mem=12G
+#SBATCH --time=0-24:00
+#SBATCH --chdir=/work/ojedamarin/pff_runs
+#SBATCH --mail-type=END,FAIL
+#SBATCH --output=/work/ojedamarin/pff_runs/slurm-%j.out
+###############################################################################
+
+# ─── proxy & env ─────────────────────────────────────────────────────────────
+export http_proxy=http://proxy2.uni-potsdam.de:3128
+export https_proxy=http://proxy2.uni-potsdam.de:3128
+export ftp_proxy=http://proxy2.uni-potsdam.de:3128
+
+# module load lang/Miniforge3/24.1.2-0
+# conda activate sim-priors-pk
+
+# ─── fixed hyper-params ──────────────────────────────────────────────────────
+EPOCHS=100
+BATCH_SIZE=64
+NUM_WORKERS=8
+VAL_EVERY_PCT=0.1
+EMPIRICAL_EVERY_PCT=0.1
+TRAIN_SIZE=12800
+TEST_SIZE=64
+VAL_SIZE=256
+
+
+#CONFIG_PATH="/home/ojedamarin/Projects/Pharma/pff/config_files/experiment_configs/UAI/aicme-t-pk/base.yaml"
+#CONFIG_PATH="/home/ojedamarin/Projects/Pharma/pff/config_files/experiment_configs/UAI/aicme-t-pk/base.yaml"
+#CONFIG_PATH="/home/ojedamarin/Projects/Pharma/pff/config_files/experiment_configs/UAI/flow-pk-generate-potsdam/flowPK.yaml"
+#CONFIG_PATH="/home/ojedamarin/Projects/Pharma/pff/config_files/experiment_configs/UAI/flow-pk-predict-n-generate-potsdam/flowPK.yaml"
+#CONFIG_PATH="/home/ojedamarin/Projects/Pharma/pff/config_files/experiment_configs/UAI/node-pk/base.yaml"
+#CONFIG_PATH="/home/ojedamarin/Projects/Pharma/pff/config_files/experiment_configs/UAI/t-pk/base.yaml"
+CONFIG_PATH="/home/ojedamarin/Projects/Pharma/pff/config_files/experiment_configs/UAI/Rebuttal/Potsdam/aicme-t-pk-cluster/base.yaml"
+HF_MODEL_NAME=None
+DEBUG_TEST=False
+
+# ─── paths ───────────────────────────────────────────────────────────────────
+PYTHON_PATH="/home/ojedamarin/.conda/envs/sim-priors-pk/bin/python"
+SCRIPT_PATH="/home/ojedamarin/Projects/Pharma/pff/scripts/training/train_model.py"
+MY_RESULTS_PATH="/work/ojedamarin/Projects/Pharma/Results/"
+REPO_ROOT="/home/ojedamarin/Projects/Pharma/pff"
+
+# ─── override string ─────────────────────────────────────────────────────────
+OVERRIDE=(
+  train.epochs=$EPOCHS
+  train.batch_size=$BATCH_SIZE
+  train.num_workers=$NUM_WORKERS
+  mix_data.train_size=$TRAIN_SIZE
+  mix_data.test_size=$TEST_SIZE
+  mix_data.val_size=$VAL_SIZE
+  run_index=0
+  my_results_path=$MY_RESULTS_PATH
+  hf_model_name=$HF_MODEL_NAME
+  debug_test=$DEBUG_TEST
+)
+
+# Keep the None-filtering logic so you can safely reintroduce optional params
+FILTERED=()
+for entry in "${OVERRIDE[@]}"; do
+  if [[ ! "$entry" =~ None|none|NaN|nan ]]; then
+    FILTERED+=("$entry")
+  fi
+done
+
+OVERRIDE_ARGS="--override ${FILTERED[*]}"
+
+# ─── run ─────────────────────────────────────────────────────────────────────
+echo "▶ Single run | config=$(basename "$CONFIG_PATH")"
+srun "$PYTHON_PATH" "$SCRIPT_PATH" --config_path "$CONFIG_PATH" $OVERRIDE_ARGS

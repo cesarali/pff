@@ -1,0 +1,56 @@
+[
+  {
+    "context": [
+      {
+        "name_id": "S01-P001",
+        "observations": [4.0, 2.0, 1.0, 0.5],
+        "observation_times": [0.5, 1.0, 2.0, 4.0],
+        "dosing": [1.0],
+        "dosing_type": ["iv"],
+        "dosing_times": [0.0],
+        "dosing_name": ["drugA"]
+      },
+      {
+        "name_id": "S01-P002",
+        "observations": [8.0, 4.0, 2.0, 1.0],
+        "observation_times": [0.5, 1.0, 2.0, 4.0],
+        "dosing": [2.0],
+        "dosing_type": ["iv"],
+        "dosing_times": [0.0],
+        "dosing_name": ["drugA"]
+      }
+    ],
+    "target": [],
+    "meta_data": {
+      "study_name": "Study1",
+      "substance_name": "DrugA"
+    }
+  },
+  {
+    "context": [
+      {
+        "name_id": "S02-P001",
+        "observations": [4.0, 2.0, 1.0, 0.5],
+        "observation_times": [0.5, 1.0, 2.0, 4.0],
+        "dosing": [1.0],
+        "dosing_type": ["iv"],
+        "dosing_times": [0.0],
+        "dosing_name": ["drugB"]
+      },
+      {
+        "name_id": "S02-P002",
+        "observations": [4.0, 2.0, 1.0, 0.5],
+        "observation_times": [0.5, 1.0, 2.0, 4.0],
+        "dosing": [1.0],
+        "dosing_type": ["iv"],
+        "dosing_times": [0.0],
+        "dosing_name": ["drugB"]
+      }
+    ],
+    "target": [],
+    "meta_data": {
+      "study_name": "Study2",
+      "substance_name": "DrugB"
+    }
+  }
+]

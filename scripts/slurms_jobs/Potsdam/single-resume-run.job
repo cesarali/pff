@@ -1,0 +1,62 @@
+#!/bin/bash
+
+###############################################################################
+# single-resume-run.job – resume training with a single config
+###############################################################################
+#SBATCH --partition=gpu
+#SBATCH --nodes=1
+#SBATCH --gpus=tesla_v100:2
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=10
+#SBATCH --mem=12G
+#SBATCH --time=0-18:00
+#SBATCH --chdir=/work/ojedamarin/testjobs
+#SBATCH --mail-type=ALL
+#SBATCH --output=/work/ojedamarin/testjobs/slurm-%j.out
+###############################################################################
+
+# ─── proxy & env ─────────────────────────────────────────────────────────────
+export http_proxy=http://proxy2.uni-potsdam.de:3128
+export https_proxy=http://proxy2.uni-potsdam.de:3128
+export ftp_proxy=http://proxy2.uni-potsdam.de:3128
+
+module load lang/Miniforge3/24.1.2-0
+source activate generative-pk
+
+# ─── resume parameters ───────────────────────────────────────────────────────
+CONFIG_PATH="/home/ojedamarin/Projects/Pharma/generative_pk/config_files/experiment_configs/node-pk/neural-process-pk-1906.yaml"
+HOW_MANY_MORE_EPOCHS=20
+EXPERIMENT_KEY="49589ba2dbe94b5c99b495ed6c77338f"
+TRAIN_NEW=true   # old config new weights
+FROM_NEW_EXPERIMENT=false # old config old weights new logger
+
+# ─── loss and KL hyper-params (overrides) ─────────────────────────────────
+LOSS_NAME="nll"
+USE_KL_S=True
+USE_KL_I=True
+USE_KL_INIT=True
+
+# ─── paths ───────────────────────────────────────────────────────────────────
+PYTHON_PATH="/home/ojedamarin/.conda/envs/generative-pk/bin/python"
+SCRIPT_PATH="/home/ojedamarin/Projects/Pharma/generative_pk/scripts/training/resume_model.py"
+MY_RESULTS_PATH="/work/ojedamarin/Projects/Pharma/Results/"
+
+# ─── override string ─────────────────────────────────────────────────────────
+OVERRIDE=(
+  network.loss_name=$LOSS_NAME
+  network.use_kl_s=$USE_KL_S
+  network.use_kl_i=$USE_KL_I
+  network.use_kl_init=$USE_KL_INIT
+)
+OVERRIDE_ARGS="--override ${OVERRIDE[*]}"
+
+# ─── run ─────────────────────────────────────────────────────────────────────
+echo "▶ Single resume run | config=$(basename $CONFIG_PATH)"
+$PYTHON_PATH $SCRIPT_PATH \
+  --config_path $CONFIG_PATH \
+  --how_many_more_epochs $HOW_MANY_MORE_EPOCHS \
+  --experiment_key $EXPERIMENT_KEY \
+  --train_new $TRAIN_NEW \
+  --from_new_experiment $FROM_NEW_EXPERIMENT \
+  --results_dir $MY_RESULTS_PATH \
+  $OVERRIDE_ARGS

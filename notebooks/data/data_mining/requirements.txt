@@ -1,0 +1,11 @@
+openai
+pydantic
+metapub
+pandas
+ipython
+biopython
+bs4
+nbformat
+nbclient
+Bio
+jupyter
